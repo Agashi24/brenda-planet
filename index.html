@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
-    <title>Brenda 🚀🪐Universe🌕☄️🛸</title>
+    <title>Brenda Universe🚀🪐☄️🛸</title>
     <link
       rel="icon"
       type="image/svg+xml"
@@ -935,6 +935,9 @@
     </style>
   </head>
   <body>
+    <audio id="bgm" loop preload="auto">
+      <source src="brenda-universe.mp3" type="audio/mpeg" />
+    </audio>
     <div id="vignette"></div>
     <div id="grain"></div>
     <div id="ls">
@@ -1892,7 +1895,55 @@
         metSys = new Meteors(scene);
         pulseSys = new Pulse(scene);
         auroraData = mkAurora();
-        audSys = mkAudio();
+        function mkAudio() {
+          const audio = document.getElementById("bgm");
+          const btn = document.getElementById("aw");
+          let playing = false;
+
+          btn.addEventListener("click", () => {
+            if (!playing) {
+              audio.volume = 0;
+              audio
+                .play()
+                .then(() => {
+                  let v = 0;
+                  const fade = setInterval(() => {
+                    v += 0.05;
+                    if (v >= 0.6) {
+                      v = 0.6;
+                      clearInterval(fade);
+                    }
+                    audio.volume = v;
+                  }, 50);
+                })
+                .catch(() => {});
+              btn.classList.add("on");
+              playing = true;
+            } else {
+              let v = audio.volume;
+              const fade = setInterval(() => {
+                v -= 0.05;
+                if (v <= 0) {
+                  v = 0;
+                  clearInterval(fade);
+                  audio.pause();
+                }
+                audio.volume = v;
+              }, 50);
+              btn.classList.remove("on");
+              playing = false;
+            }
+          });
+
+          btn.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              btn.click();
+            }
+          });
+
+          return { audio, btn };
+        }
         totalPh = RING_CFG.reduce((a, c) => a + c.n, 0);
         const lp = mkAllRings();
         const tp = new Promise((r) => setTimeout(r, 10000));
