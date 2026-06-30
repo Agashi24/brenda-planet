@@ -935,7 +935,6 @@
     </style>
   </head>
   <body>
-    
     <div id="vignette"></div>
     <div id="grain"></div>
     <div id="ls">
@@ -2064,49 +2063,51 @@
 
         // Muat foto-foto dari folder lokal (berulang/loop jika foto lebih sedikit dari jumlah cincin)
         const textures = await Promise.all(
-          Array.from({ length: cfg.n }, (_, i) =>
-            new Promise((res) => {
-              if (LOCAL_PHOTOS.length === 0) {
-                loadedPh++;
-                updProg(loadedPh / totalPh);
-                res(null);
-                return;
-              }
-              const photoSrc = LOCAL_PHOTOS[i % LOCAL_PHOTOS.length];
-              let done = false;
-              const tm = setTimeout(() => {
-                if (!done) {
-                  done = true;
+          Array.from(
+            { length: cfg.n },
+            (_, i) =>
+              new Promise((res) => {
+                if (LOCAL_PHOTOS.length === 0) {
                   loadedPh++;
                   updProg(loadedPh / totalPh);
                   res(null);
+                  return;
                 }
-              }, 3500);
-              loader.load(
-                photoSrc,
-                (t) => {
+                const photoSrc = LOCAL_PHOTOS[i % LOCAL_PHOTOS.length];
+                let done = false;
+                const tm = setTimeout(() => {
                   if (!done) {
                     done = true;
-                    clearTimeout(tm);
-                    t.colorSpace = THREE.SRGBColorSpace; // Pastikan warna foto tidak terlalu terang/redup
-                    loadedPh++;
-                    updProg(loadedPh / totalPh);
-                    res(t);
-                  }
-                },
-                undefined,
-                () => {
-                  if (!done) {
-                    done = true;
-                    clearTimeout(tm);
                     loadedPh++;
                     updProg(loadedPh / totalPh);
                     res(null);
                   }
-                }
-              );
-            })
-          )
+                }, 3500);
+                loader.load(
+                  photoSrc,
+                  (t) => {
+                    if (!done) {
+                      done = true;
+                      clearTimeout(tm);
+                      t.colorSpace = THREE.SRGBColorSpace; // Pastikan warna foto tidak terlalu terang/redup
+                      loadedPh++;
+                      updProg(loadedPh / totalPh);
+                      res(t);
+                    }
+                  },
+                  undefined,
+                  () => {
+                    if (!done) {
+                      done = true;
+                      clearTimeout(tm);
+                      loadedPh++;
+                      updProg(loadedPh / totalPh);
+                      res(null);
+                    }
+                  },
+                );
+              }),
+          ),
         );
 
         for (let i = 0; i < cfg.n; i++) {
@@ -2429,27 +2430,34 @@
       }
 
       /* === AUDIO MP3 LOKAL === */
+      /* === AUDIO MP3 LOKAL === */
       function mkAudio() {
-        // Muat file MP3 lokal Anda
-        const audio = new Audio('brenda-universe.mp3');
-        audio.loop = true; // Audio akan terus berputar sampai selesai (looping)
-        audio.volume = 0.6; // Atur volume (0.0 - 1.0)
+        // Ganti spasi dengan %20 agar server Vercel bisa membacanya
+        const audio = new Audio("brenda%20-%20universe.mp3");
+        audio.loop = true;
+        audio.volume = 0.6;
         let isPlaying = false;
 
         function start() {
           if (!isPlaying) {
-            audio.play().then(() => {
-              isPlaying = true;
-              document.getElementById("aw").classList.add("on");
-            }).catch(e => console.log("Autoplay diblokir browser:", e));
+            audio
+              .play()
+              .then(() => {
+                isPlaying = true;
+                document.getElementById("aw").classList.add("on");
+              })
+              .catch((e) => {
+                console.error("Gagal memutar audio:", e);
+              });
+          } else {
+            if (audio.paused) audio.play();
           }
         }
 
         function toggle() {
-          if (isPlaying) {
+          if (isPlaying && !audio.paused) {
             audio.pause();
             document.getElementById("aw").classList.remove("on");
-            isPlaying = false;
           } else {
             start();
           }
@@ -2532,7 +2540,7 @@
             if (!this.classList.contains("tp")) this.classList.add("tp");
           }
         });
-        
+
         // Saat tombol "Masuk ke Dunia Brenda" diklik, audio mulai diputar
         document.getElementById("bgo").addEventListener("click", () => {
           document.getElementById("inst").classList.add("out");
