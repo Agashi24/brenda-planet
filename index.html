@@ -1,1104 +1,3 @@
-<!doctype html>
-<html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no"
-    />
-    <title>Brenda Universe🚀🪐☄️🛸</title>
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23f9a8d4'/><stop offset='100%25' stop-color='%23ec4899'/></linearGradient></defs><path d='M50 88C25 65 8 50 8 33 8 18 20 8 33 8c8 0 15 4 17 10 2-6 9-10 17-10 13 0 25 10 25 25 0 17-17 32-42 55z' fill='url(%23g)'/></svg>"
-    />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Quicksand:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-        }
-      }
-    </script>
-    <style>
-      :root {
-        --bg: #06020f;
-        --fg: #f3eeff;
-        --muted: #8879a0;
-        --accent: #f9a8d4;
-        --gold: #f0c674;
-        --pm: #ec4899;
-        --pd: #be185d;
-        --pl: #fbcfe8;
-      }
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family: "Quicksand", sans-serif;
-        background: var(--bg);
-        color: var(--fg);
-        overflow: hidden;
-        width: 100vw;
-        height: 100vh;
-      }
-      .fd {
-        font-family: "Playfair Display", serif;
-      }
-      #vignette {
-        position: fixed;
-        inset: 0;
-        z-index: 3;
-        pointer-events: none;
-        background: radial-gradient(
-          ellipse at 50% 50%,
-          transparent 35%,
-          rgba(6, 2, 15, 0.5) 80%,
-          rgba(6, 2, 15, 0.9) 100%
-        );
-      }
-      #grain {
-        position: fixed;
-        inset: -50%;
-        width: 200%;
-        height: 200%;
-        z-index: 4;
-        pointer-events: none;
-        opacity: 0.03;
-        mix-blend-mode: overlay;
-      }
-      #ls {
-        position: fixed;
-        inset: 0;
-        z-index: 100;
-        background: radial-gradient(ellipse at 50% 30%, #120818, var(--bg) 70%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 1s;
-      }
-      #ls.out {
-        opacity: 0;
-        pointer-events: none;
-      }
-      #lstars {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-        pointer-events: none;
-      }
-      .lstar {
-        position: absolute;
-        border-radius: 50%;
-        background: #fff;
-      }
-      @keyframes ltw {
-        0%,
-        100% {
-          opacity: 0.08;
-          transform: scale(0.5);
-        }
-        50% {
-          opacity: 1;
-          transform: scale(1.3);
-        }
-      }
-      .lpw {
-        position: relative;
-        width: 160px;
-        height: 160px;
-        margin-bottom: 36px;
-        perspective: 800px;
-      }
-      .lpl {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background: radial-gradient(
-          circle at 32% 32%,
-          #fbcfe8,
-          #f9a8d4 25%,
-          #ec4899 50%,
-          #db2777 72%,
-          #9d174d
-        );
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        box-shadow:
-          0 0 50px rgba(236, 72, 153, 0.45),
-          0 0 100px rgba(236, 72, 153, 0.15);
-        animation: pp 3s ease-in-out infinite;
-        z-index: 3;
-      }
-      @keyframes pp {
-        0%,
-        100% {
-          box-shadow:
-            0 0 50px rgba(236, 72, 153, 0.45),
-            0 0 100px rgba(236, 72, 153, 0.15);
-        }
-        50% {
-          box-shadow:
-            0 0 65px rgba(236, 72, 153, 0.6),
-            0 0 120px rgba(236, 72, 153, 0.25);
-        }
-      }
-      .lpr1 {
-        width: 180px;
-        height: 180px;
-        border-radius: 50%;
-        border: 2.5px solid rgba(240, 198, 116, 0.55);
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        animation: pr1 6s linear infinite;
-        z-index: 4;
-      }
-      .lpr2 {
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        border: 1.5px solid rgba(240, 198, 116, 0.3);
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        animation: pr2 9s linear infinite reverse;
-        z-index: 4;
-      }
-      .lpr3 {
-        width: 225px;
-        height: 225px;
-        border-radius: 50%;
-        border: 1px solid rgba(240, 198, 116, 0.14);
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        animation: pr3 13s linear infinite;
-        z-index: 4;
-      }
-      @keyframes pr1 {
-        from {
-          transform: translate(-50%, -50%) rotateX(75deg) rotateZ(0deg);
-        }
-        to {
-          transform: translate(-50%, -50%) rotateX(75deg) rotateZ(360deg);
-        }
-      }
-      @keyframes pr2 {
-        from {
-          transform: translate(-50%, -50%) rotateX(62deg) rotateY(28deg)
-            rotateZ(0deg);
-        }
-        to {
-          transform: translate(-50%, -50%) rotateX(62deg) rotateY(28deg)
-            rotateZ(360deg);
-        }
-      }
-      @keyframes pr3 {
-        from {
-          transform: translate(-50%, -50%) rotateX(82deg) rotateY(-18deg)
-            rotateZ(0deg);
-        }
-        to {
-          transform: translate(-50%, -50%) rotateX(82deg) rotateY(-18deg)
-            rotateZ(360deg);
-        }
-      }
-      .lorb {
-        position: absolute;
-        width: 3px;
-        height: 3px;
-        border-radius: 50%;
-        background: rgba(240, 198, 116, 0.7);
-        box-shadow: 0 0 5px rgba(240, 198, 116, 0.5);
-        z-index: 5;
-      }
-      .lorb1 {
-        animation: orb1 4.5s linear infinite;
-      }
-      .lorb2 {
-        animation: orb2 6s linear infinite;
-      }
-      .lorb3 {
-        animation: orb3 8s linear infinite reverse;
-      }
-      .lorb4 {
-        animation: orb4 5s linear infinite;
-      }
-      @keyframes orb1 {
-        from {
-          transform: rotateX(75deg) rotateZ(0deg) translateX(90px);
-        }
-        to {
-          transform: rotateX(75deg) rotateZ(360deg) translateX(90px);
-        }
-      }
-      @keyframes orb2 {
-        from {
-          transform: rotateX(62deg) rotateY(28deg) rotateZ(0deg)
-            translateX(100px);
-        }
-        to {
-          transform: rotateX(62deg) rotateY(28deg) rotateZ(360deg)
-            translateX(100px);
-        }
-      }
-      @keyframes orb3 {
-        from {
-          transform: rotateX(82deg) rotateY(-18deg) rotateZ(0deg)
-            translateX(112px);
-        }
-        to {
-          transform: rotateX(82deg) rotateY(-18deg) rotateZ(360deg)
-            translateX(112px);
-        }
-      }
-      @keyframes orb4 {
-        from {
-          transform: rotateX(75deg) rotateZ(180deg) translateX(90px);
-        }
-        to {
-          transform: rotateX(75deg) rotateZ(540deg) translateX(90px);
-        }
-      }
-      .lpatm {
-        width: 110px;
-        height: 110px;
-        border-radius: 50%;
-        background: radial-gradient(
-          circle,
-          transparent 32%,
-          rgba(249, 168, 212, 0.12) 52%,
-          transparent 78%
-        );
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        pointer-events: none;
-        z-index: 2;
-      }
-      .lpglow {
-        width: 170px;
-        height: 170px;
-        border-radius: 50%;
-        background: radial-gradient(
-          circle,
-          rgba(236, 72, 153, 0.22),
-          transparent 68%
-        );
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        pointer-events: none;
-        animation: glp 3s ease-in-out infinite;
-        z-index: 1;
-      }
-      @keyframes glp {
-        0%,
-        100% {
-          opacity: 0.5;
-          transform: translate(-50%, -50%) scale(1);
-        }
-        50% {
-          opacity: 1;
-          transform: translate(-50%, -50%) scale(1.12);
-        }
-      }
-      .ldpg {
-        width: 70px;
-        height: 70px;
-        margin-bottom: 28px;
-      }
-      .ldpg svg {
-        width: 100%;
-        height: 100%;
-        transform: rotate(-90deg);
-      }
-      .lpb {
-        fill: none;
-        stroke: rgba(255, 255, 255, 0.06);
-        stroke-width: 3.5;
-      }
-      .lpf {
-        fill: none;
-        stroke: #ec4899;
-        stroke-width: 3.5;
-        stroke-linecap: round;
-        stroke-dasharray: 188.5;
-        stroke-dashoffset: 188.5;
-        transition: stroke-dashoffset 0.4s;
-      }
-      .lpg {
-        fill: none;
-        stroke: #ec4899;
-        stroke-width: 6;
-        stroke-linecap: round;
-        stroke-dasharray: 188.5;
-        stroke-dashoffset: 188.5;
-        transition: stroke-dashoffset 0.4s;
-        opacity: 0.25;
-        filter: blur(3px);
-      }
-      .ldt {
-        font-family: "Playfair Display", serif;
-        font-size: 1.6rem;
-        font-weight: 700;
-        margin-bottom: 8px;
-      }
-      .lds {
-        font-family: "Playfair Display", serif;
-        font-style: italic;
-        font-size: 0.85rem;
-        color: var(--muted);
-        margin-bottom: 6px;
-      }
-      .ldw {
-        font-size: 0.78rem;
-        color: rgba(255, 255, 255, 0.3);
-        animation: wp 2s ease-in-out infinite;
-      }
-      @keyframes wp {
-        0%,
-        100% {
-          opacity: 0.3;
-        }
-        50% {
-          opacity: 0.7;
-        }
-      }
-      #land {
-        position: fixed;
-        inset: 0;
-        z-index: 50;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: radial-gradient(ellipse at 50% 40%, #120818, var(--bg) 70%);
-        transition:
-          opacity 1s,
-          transform 1s;
-      }
-      #land.out {
-        opacity: 0;
-        transform: scale(1.05);
-        pointer-events: none;
-      }
-      .lst {
-        position: absolute;
-        border-radius: 50%;
-        background: #fff;
-        animation: tw var(--d) ease-in-out infinite;
-        animation-delay: var(--dl);
-      }
-      @keyframes tw {
-        0%,
-        100% {
-          opacity: 0.12;
-          transform: scale(0.6);
-        }
-        50% {
-          opacity: 1;
-          transform: scale(1.3);
-        }
-      }
-      .cw {
-        width: 90%;
-        max-width: 420px;
-        animation: fu 0.8s ease both;
-      }
-      @keyframes fu {
-        from {
-          opacity: 0;
-          transform: translateY(24px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .cb {
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px 20px 20px 4px;
-        padding: 20px 24px;
-        margin-bottom: 16px;
-        backdrop-filter: blur(10px);
-      }
-      .cb p {
-        font-size: 1rem;
-        font-weight: 500;
-        line-height: 1.6;
-      }
-      .crs {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-        padding-left: 12px;
-      }
-      .cbtn {
-        border: none;
-        padding: 13px 28px;
-        border-radius: 18px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.25s;
-        font-family: "Quicksand", sans-serif;
-      }
-      .cby {
-        background: linear-gradient(135deg, #ec4899, #db2777);
-        color: #fff;
-        box-shadow: 0 4px 20px rgba(236, 72, 153, 0.35);
-      }
-      .cby:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 28px rgba(236, 72, 153, 0.5);
-      }
-      .cbn {
-        background: rgba(255, 255, 255, 0.08);
-        color: var(--fg);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-      }
-      .cbn:hover {
-        background: rgba(255, 255, 255, 0.12);
-      }
-      .cbn.tp {
-        position: fixed;
-        z-index: 55;
-        animation: bp 0.3s ease both;
-      }
-      @keyframes bp {
-        from {
-          transform: scale(0.7);
-          opacity: 0.5;
-        }
-        to {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
-      .cbn.gu {
-        position: relative;
-        z-index: auto;
-        background: rgba(236, 72, 153, 0.1);
-        border-color: rgba(236, 72, 153, 0.3);
-        color: #f9a8d4;
-        cursor: default;
-      }
-      #inst {
-        position: fixed;
-        inset: 0;
-        z-index: 45;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(6, 2, 15, 0.92);
-        backdrop-filter: blur(14px);
-        transition: opacity 0.7s;
-      }
-      #inst.out {
-        opacity: 0;
-        pointer-events: none;
-      }
-      .icd {
-        background: rgba(249, 168, 212, 0.05);
-        border: 1px solid rgba(240, 198, 116, 0.18);
-        border-radius: 20px;
-        padding: 28px 24px;
-        max-width: 520px;
-        width: 90%;
-        animation: fu 0.6s ease both;
-      }
-      .irw {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        padding: 7px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-      }
-      .irw:last-child {
-        border-bottom: none;
-      }
-      .iic {
-        width: 34px;
-        height: 34px;
-        border-radius: 8px;
-        background: rgba(249, 168, 212, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--accent);
-        font-size: 0.82rem;
-        flex-shrink: 0;
-      }
-      .bgo {
-        background: linear-gradient(135deg, var(--gold), #d4a030);
-        color: #2a0f24;
-        border: none;
-        padding: 14px 46px;
-        border-radius: 50px;
-        font-size: 1.08rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-family: "Quicksand", sans-serif;
-        box-shadow: 0 4px 28px rgba(240, 198, 116, 0.3);
-      }
-      .bgo:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 38px rgba(240, 198, 116, 0.5);
-      }
-      #cvw {
-        position: fixed;
-        inset: 0;
-        z-index: 1;
-      }
-      #cvw canvas {
-        display: block;
-      }
-      #ui {
-        position: fixed;
-        inset: 0;
-        z-index: 10;
-        pointer-events: none;
-        transition: opacity 1s ease 0.5s;
-      }
-      #ui.out {
-        opacity: 0;
-      }
-      #ui > * {
-        pointer-events: auto;
-      }
-      #ttl {
-        position: absolute;
-        top: 22px;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-        animation: fi 2.5s ease 1s both;
-        perspective: 900px;
-      }
-      @keyframes fi {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      #t3d {
-        display: inline-block;
-        transform-style: preserve-3d;
-        will-change: transform;
-      }
-      #t3d h1 {
-        font-family: "Playfair Display", serif;
-        font-size: clamp(1.05rem, 3.2vw, 1.65rem);
-        font-weight: 700;
-        color: var(--fg);
-        text-shadow:
-          0 0 40px rgba(249, 168, 212, 0.4),
-          0 2px 8px rgba(0, 0, 0, 0.6);
-        transform: translateZ(35px);
-      }
-      #t3d .nl {
-        font-family: "Playfair Display", serif;
-        font-style: italic;
-        font-size: clamp(0.82rem, 2.2vw, 1.1rem);
-        color: var(--gold);
-        margin-top: 6px;
-        opacity: 0.85;
-        text-shadow:
-          0 0 25px rgba(240, 198, 116, 0.35),
-          0 2px 6px rgba(0, 0, 0, 0.5);
-        transform: translateZ(18px);
-        display: block;
-      }
-      #aw {
-        position: absolute;
-        bottom: 22px;
-        left: 22px;
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 40px;
-        padding: 7px 16px 7px 11px;
-        backdrop-filter: blur(8px);
-        cursor: pointer;
-        transition: all 0.3s;
-        user-select: none;
-      }
-      #aw:hover {
-        background: rgba(249, 168, 212, 0.1);
-        border-color: var(--accent);
-      }
-      #aw.on .ad {
-        background: #22c55e;
-        box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
-      }
-      .ad {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--muted);
-        transition: all 0.3s;
-        flex-shrink: 0;
-      }
-      .at {
-        font-size: 0.75rem;
-        color: var(--muted);
-        transition: color 0.3s;
-      }
-      #aw.on .at {
-        color: var(--fg);
-      }
-      #cpl {
-        position: absolute;
-        bottom: 22px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 7px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      .cbt {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: var(--fg);
-        padding: 8px 14px;
-        border-radius: 40px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s;
-        backdrop-filter: blur(8px);
-        font-family: "Quicksand", sans-serif;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-      .cbt:hover {
-        background: rgba(249, 168, 212, 0.12);
-        border-color: var(--accent);
-      }
-      .cbt.on {
-        background: rgba(236, 72, 153, 0.25);
-        border-color: #ec4899;
-        color: #fbcfe8;
-        box-shadow: 0 0 18px rgba(236, 72, 153, 0.3);
-      }
-      .cbt i {
-        font-size: 0.8rem;
-      }
-      #cinb {
-        position: absolute;
-        top: 22px;
-        right: 22px;
-        background: rgba(236, 72, 153, 0.15);
-        border: 1px solid rgba(236, 72, 153, 0.3);
-        color: #f9a8d4;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        pointer-events: none;
-      }
-      #cinb.show {
-        opacity: 1;
-      }
-      .cdi {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #ec4899;
-        animation: cp 1s ease-in-out infinite;
-      }
-      @keyframes cp {
-        0%,
-        100% {
-          opacity: 0.4;
-          transform: scale(0.8);
-        }
-        50% {
-          opacity: 1;
-          transform: scale(1.2);
-        }
-      }
-      #lov {
-        position: fixed;
-        inset: 0;
-        z-index: 20;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(6, 2, 15, 0.85);
-        backdrop-filter: blur(18px);
-        transition: opacity 0.5s;
-      }
-      #lov.out {
-        opacity: 0;
-        pointer-events: none;
-      }
-      .lcd {
-        background: linear-gradient(145deg, #fefcf4, #faf5e6);
-        color: #3a2a1a;
-        border-radius: 16px;
-        padding: 40px 34px 28px;
-        max-width: 470px;
-        width: 88%;
-        position: relative;
-        box-shadow:
-          0 20px 60px rgba(0, 0, 0, 0.5),
-          0 0 80px rgba(236, 72, 153, 0.1);
-        animation: ln 0.6s ease both;
-      }
-      @keyframes ln {
-        from {
-          opacity: 0;
-          transform: translateY(34px) rotateX(8deg);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0) rotateX(0);
-        }
-      }
-      .lcd::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 5px;
-        background: linear-gradient(90deg, var(--pm), var(--gold), var(--pm));
-        border-radius: 16px 16px 0 0;
-      }
-      .lcl {
-        position: absolute;
-        top: 11px;
-        right: 13px;
-        background: 0 0;
-        border: none;
-        color: #9b8a9e;
-        font-size: 1.1rem;
-        cursor: pointer;
-        padding: 4px 8px;
-        transition: color 0.2s;
-      }
-      .lcl:hover {
-        color: var(--pm);
-      }
-      .tw-cursor {
-        display: inline-block;
-        width: 2px;
-        height: 1em;
-        background: var(--pm);
-        margin-left: 2px;
-        animation: blink 0.6s step-end infinite;
-        vertical-align: text-bottom;
-      }
-      @keyframes blink {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0;
-        }
-      }
-      #elb {
-        position: absolute;
-        z-index: 11;
-        pointer-events: none;
-        color: var(--gold);
-        font-size: 0.7rem;
-        font-weight: 600;
-        background: rgba(6, 2, 15, 0.8);
-        padding: 3px 11px;
-        border-radius: 20px;
-        border: 1px solid rgba(240, 198, 116, 0.3);
-        transition: opacity 0.4s;
-        white-space: nowrap;
-        animation: pg 2s ease-in-out infinite;
-      }
-      @keyframes pg {
-        0%,
-        100% {
-          box-shadow: 0 0 6px rgba(240, 198, 116, 0.12);
-        }
-        50% {
-          box-shadow: 0 0 18px rgba(240, 198, 116, 0.35);
-        }
-      }
-      #tst {
-        position: fixed;
-        bottom: 76px;
-        left: 50%;
-        transform: translateX(-50%) translateY(16px);
-        background: rgba(18, 10, 36, 0.92);
-        border: 1px solid rgba(240, 198, 116, 0.18);
-        color: var(--fg);
-        padding: 10px 24px;
-        border-radius: 40px;
-        font-size: 0.83rem;
-        z-index: 30;
-        backdrop-filter: blur(10px);
-        transition: all 0.3s;
-        opacity: 0;
-        pointer-events: none;
-      }
-      #tst.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          animation-duration: 0.01ms !important;
-          transition-duration: 0.01ms !important;
-        }
-      }
-      @media (max-width: 640px) {
-        .lcd {
-          padding: 30px 20px 24px;
-        }
-        .icd {
-          padding: 20px 16px;
-        }
-        .cbt {
-          padding: 6px 11px;
-          font-size: 0.7rem;
-        }
-        #cpl {
-          gap: 4px;
-          bottom: 12px;
-        }
-        #aw {
-          bottom: 12px;
-          left: 12px;
-          padding: 5px 12px 5px 9px;
-        }
-        .at {
-          font-size: 0.68rem;
-        }
-        #cinb {
-          top: auto;
-          bottom: 56px;
-          right: 12px;
-        }
-        .lpw {
-          width: 120px;
-          height: 120px;
-        }
-        .lpl {
-          width: 62px;
-          height: 62px;
-        }
-        .lpr1 {
-          width: 140px;
-          height: 140px;
-        }
-        .lpr2 {
-          width: 155px;
-          height: 155px;
-        }
-        .lpr3 {
-          width: 170px;
-          height: 170px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <audio id="bgm" loop preload="auto">
-      <source src="brenda-universe.mp3" type="audio/mpeg" />
-    </audio>
-    <div id="vignette"></div>
-    <div id="grain"></div>
-    <div id="ls">
-      <div id="lstars"></div>
-      <div class="lpw">
-        <div class="lpr3"></div>
-        <div class="lpr2"></div>
-        <div class="lpr1"></div>
-        <div class="lorb lorb1"></div>
-        <div class="lorb lorb2"></div>
-        <div class="lorb lorb3"></div>
-        <div class="lorb lorb4"></div>
-        <div class="lpatm"></div>
-        <div class="lpl"></div>
-        <div class="lpglow"></div>
-      </div>
-      <div class="ldpg">
-        <svg viewBox="0 0 70 70">
-          <circle cx="35" cy="35" r="30" class="lpb" />
-          <circle cx="35" cy="35" r="30" class="lpg" id="pgl" />
-          <circle cx="35" cy="35" r="30" class="lpf" id="pgf" />
-        </svg>
-      </div>
-      <h2 class="ldt">Love Planet</h2>
-      <p class="lds">A world shaped with love, just for you...</p>
-      <p class="ldw">Loading memories...</p>
-    </div>
-    <div id="land" class="out">
-      <div id="lsts"></div>
-      <div class="cw">
-        <div class="cb"><p>Do you want to see my favorite person?</p></div>
-        <div class="crs">
-          <button class="cbtn cby" id="by">Of course 😊</button>
-          <button class="cbtn cbn" id="bn">No way 😢</button>
-        </div>
-      </div>
-    </div>
-    <div id="inst" class="out">
-      <div class="icd">
-        <h2 class="fd text-xl font-bold mb-1" style="color: var(--gold)">
-          Cara Menjelajah
-        </h2>
-        <p class="text-xs mb-4" style="color: var(--muted)">
-          Panduan singkat galaksi kecil ini
-        </p>
-        <div>
-          <div class="irw">
-            <div class="iic"><i class="fas fa-hand-pointer"></i></div>
-            <div>
-              <p class="text-sm font-semibold">Klik / Tap</p>
-              <p class="text-xs" style="color: var(--muted)">
-                Foto terpental lalu kembali
-              </p>
-            </div>
-          </div>
-          <div class="irw">
-            <div class="iic"><i class="fas fa-video"></i></div>
-            <div>
-              <p class="text-sm font-semibold">Double Tap / Click</p>
-              <p class="text-xs" style="color: var(--muted)">
-                Cinematic mode — 7 variasi
-              </p>
-            </div>
-          </div>
-          <div class="irw">
-            <div class="iic"><i class="fas fa-arrows-alt"></i></div>
-            <div>
-              <p class="text-sm font-semibold">Swipe / Drag</p>
-              <p class="text-xs" style="color: var(--muted)">
-                Jelajah dari segala sisi
-              </p>
-            </div>
-          </div>
-          <div class="irw">
-            <div class="iic"><i class="fas fa-search-plus"></i></div>
-            <div>
-              <p class="text-sm font-semibold">Scroll / Pinch</p>
-              <p class="text-xs" style="color: var(--muted)">
-                Smooth zoom in & out
-              </p>
-            </div>
-          </div>
-          <div class="irw">
-            <div class="iic"><i class="fas fa-plane"></i></div>
-            <div>
-              <p class="text-sm font-semibold">Flying Photos / Arrow Up</p>
-              <p class="text-xs" style="color: var(--muted)">
-                Foto terbang mendekat
-              </p>
-            </div>
-          </div>
-          <div class="irw">
-            <div class="iic"><i class="fas fa-envelope-open-text"></i></div>
-            <div>
-              <p class="text-sm font-semibold">Klik Amplop</p>
-              <p class="text-xs" style="color: var(--muted)">
-                Buka surat rahasia
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="text-center mt-5">
-          <button class="bgo" id="bgo">Masuk ke Dunia Brenda</button>
-        </div>
-      </div>
-    </div>
-    <div id="cvw"></div>
-    <div id="ui" class="out">
-      <div id="ttl">
-        <div id="t3d">
-          <h1>Only For You</h1>
-          <span class="nl">'Brenda Fiona Hitipeuw'</span>
-        </div>
-      </div>
-      <div id="cinb">
-        <div class="cdi"></div>
-        <span>Cinematic</span>
-      </div>
-      <div id="aw" role="button" aria-label="Toggle audio" tabindex="0">
-        <div class="ad"></div>
-        <span class="at">Audio</span>
-      </div>
-      <div id="cpl">
-        <button class="cbt" id="bf">
-          <i class="fas fa-plane"></i> Flying Photos
-        </button>
-        <button class="cbt" id="bl">
-          <i class="fas fa-envelope"></i> Secret Letter
-        </button>
-        <button class="cbt" id="bm">
-          <i class="fas fa-meteor"></i> Meteor Burst
-        </button>
-      </div>
-    </div>
-    <div id="elb" class="out">Secret Letter — Tap to open</div>
-    <div id="lov" class="out">
-      <div class="lcd">
-        <button class="lcl" id="lcl" aria-label="Tutup surat">
-          <i class="fas fa-times"></i>
-        </button>
-        <p class="fd italic text-sm mb-5" style="color: var(--pm)">
-          Dear Brenda,
-        </p>
-        <div
-          id="letter-body"
-          class="space-y-3 text-sm leading-relaxed"
-          style="color: #4a3a2a; min-height: 100px"
-        ></div>
-        <div
-          class="mt-5 pt-3 text-right"
-          style="border-top: 1px solid rgba(0, 0, 0, 0.07)"
-        >
-          <p class="fd italic text-xs" style="color: #9b8a9e">
-            Dengan seluruh cinta,
-          </p>
-          <p class="fd font-bold">Someone who loves you deeply</p>
-        </div>
-      </div>
-    </div>
-    <div id="tst"></div>
-
     <script type="module">
       import * as THREE from "three";
       import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -1111,6 +10,22 @@
       const PROG_C = 2 * Math.PI * 30;
       const PK_L = 0xf9a8d4,
         PK_M = 0xec4899;
+
+      // === DAFTAR FOTO LOKAL ANDA ===
+      // Silakan tambahkan atau ubah nama file sesuai dengan yang ada di folder "photos"
+      const LOCAL_PHOTOS = [
+        "photos/1.jpg",
+        "photos/2.jpg",
+        "photos/3.jpg",
+        "photos/4.jpg",
+        "photos/5.jpg",
+        "photos/6.jpg",
+        "photos/7.jpg",
+        "photos/8.jpg",
+        "photos/9.jpg",
+        "photos/10.jpg",
+      ];
+
       const RING_CFG = IS_MOBILE
         ? [
             { n: 24, r: 3.5, s: 0.42, sp: 0.32, bob: 0.1, id: "a" },
@@ -1515,19 +430,13 @@
       }
 
       /* ================================================================
-   AURORA — DITINGKATKAN INTENSITAS
-   - Alpha naik ~3x
-   - Point lights naik ~2.5x
-   - Curtain power diturunkan agar lebih solid
-   - Tambah base brightness di fragment
-   - Tinggi curtain dinaikkan agar lebih menonjol
+   AURORA 
    ================================================================ */
       function mkAurora() {
         const grp = new THREE.Group();
         const meshes = [];
         const segs = IS_MOBILE ? 64 : 100;
 
-        /* Alpha naik dari ~.07-.10 → ~.25-.35 */
         const cfgs = [
           {
             r: 2,
@@ -1630,7 +539,6 @@
                     gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);
                 }
             `,
-            /* Fragment: curtain power .55 → .3 (lebih solid), tambah base brightness .15 */
             fragmentShader: `
                 uniform float uTime;
                 uniform vec3 uC1;
@@ -1646,12 +554,9 @@
                     col=mix(col,uC3,smoothstep(.45,1.,v));
                     float rays=.6+.4*sin(vUv.x*28.+uTime*.55+sin(vUv.y*4.+uTime*.75)*2.8+uPh);
                     float flow=.5+.5*sin(vUv.x*5.5+uTime*.85+uPh*.7);
-                    /* Power diturunkan .55 → .3 agar aurora lebih solid */
                     float curtain=pow(sin(vUv.y*3.14159),0.3);
-                    /* Edge fade diperlebar agar tidak terlalu cepat hilang di tepi */
                     float ef=smoothstep(0.,.08,vUv.y)*smoothstep(1.,.92,vUv.y);
                     ef*=smoothstep(0.,.02,vUv.x)*smoothstep(1.,.98,vUv.x);
-                    /* Tambah base brightness .15 supaya aurora terlihat meski rays rendah */
                     float alpha=(curtain*rays*flow*ef+.15)*uAl;
                     gl_FragColor=vec4(col,alpha);
                 }
@@ -1661,7 +566,6 @@
             depthWrite: false,
             side: THREE.DoubleSide,
           });
-
           const mesh = new THREE.Mesh(g, m);
           mesh.rotation.x = (Math.random() - 0.5) * 0.12;
           mesh.rotation.z = (Math.random() - 0.5) * 0.08;
@@ -1669,11 +573,9 @@
           meshes.push(mesh);
         }
 
-        /* Point lights aurora: intensitas naik dari [.7,.55,.4] → [2.0,1.6,1.2], range diperlebar */
         const l1 = new THREE.PointLight(0x00ff88, 2.0, 28);
         const l2 = new THREE.PointLight(0x4488ff, 1.6, 28);
         const l3 = new THREE.PointLight(0x8844ff, 1.2, 22);
-        /* Posisikan lights agar menyinari aurora lebih baik */
         l1.position.set(3, 3, 0);
         l2.position.set(-3, -1, 3);
         l3.position.set(0, 2, -4);
@@ -1895,55 +797,7 @@
         metSys = new Meteors(scene);
         pulseSys = new Pulse(scene);
         auroraData = mkAurora();
-        function mkAudio() {
-          const audio = document.getElementById("bgm");
-          const btn = document.getElementById("aw");
-          let playing = false;
-
-          btn.addEventListener("click", () => {
-            if (!playing) {
-              audio.volume = 0;
-              audio
-                .play()
-                .then(() => {
-                  let v = 0;
-                  const fade = setInterval(() => {
-                    v += 0.05;
-                    if (v >= 0.6) {
-                      v = 0.6;
-                      clearInterval(fade);
-                    }
-                    audio.volume = v;
-                  }, 50);
-                })
-                .catch(() => {});
-              btn.classList.add("on");
-              playing = true;
-            } else {
-              let v = audio.volume;
-              const fade = setInterval(() => {
-                v -= 0.05;
-                if (v <= 0) {
-                  v = 0;
-                  clearInterval(fade);
-                  audio.pause();
-                }
-                audio.volume = v;
-              }, 50);
-              btn.classList.remove("on");
-              playing = false;
-            }
-          });
-
-          btn.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              btn.click();
-            }
-          });
-
-          return { audio, btn };
-        }
+        audSys = mkAudio(); // Setup audio MP3
         totalPh = RING_CFG.reduce((a, c) => a + c.n, 0);
         const lp = mkAllRings();
         const tp = new Promise((r) => setTimeout(r, 10000));
@@ -2108,48 +962,54 @@
       async function mkRing(cfg) {
         const grp = new THREE.Group();
         const loader = new THREE.TextureLoader();
-        const seeds = Array.from(
-          { length: cfg.n },
-          (_, i) => cfg.id + i + Math.random().toString(36).slice(2, 7),
-        );
+
+        // Muat foto-foto dari folder lokal (berulang/loop jika foto lebih sedikit dari jumlah cincin)
         const textures = await Promise.all(
-          seeds.map(
-            (s) =>
-              new Promise((res) => {
-                let done = false;
-                const tm = setTimeout(() => {
+          Array.from({ length: cfg.n }, (_, i) =>
+            new Promise((res) => {
+              if (LOCAL_PHOTOS.length === 0) {
+                loadedPh++;
+                updProg(loadedPh / totalPh);
+                res(null);
+                return;
+              }
+              const photoSrc = LOCAL_PHOTOS[i % LOCAL_PHOTOS.length];
+              let done = false;
+              const tm = setTimeout(() => {
+                if (!done) {
+                  done = true;
+                  loadedPh++;
+                  updProg(loadedPh / totalPh);
+                  res(null);
+                }
+              }, 3500);
+              loader.load(
+                photoSrc,
+                (t) => {
                   if (!done) {
                     done = true;
+                    clearTimeout(tm);
+                    t.colorSpace = THREE.SRGBColorSpace; // Pastikan warna foto tidak terlalu terang/redup
+                    loadedPh++;
+                    updProg(loadedPh / totalPh);
+                    res(t);
+                  }
+                },
+                undefined,
+                () => {
+                  if (!done) {
+                    done = true;
+                    clearTimeout(tm);
                     loadedPh++;
                     updProg(loadedPh / totalPh);
                     res(null);
                   }
-                }, 3500);
-                loader.load(
-                  "https://picsum.photos/seed/" + s + "/150/150.jpg",
-                  (t) => {
-                    if (!done) {
-                      done = true;
-                      clearTimeout(tm);
-                      loadedPh++;
-                      updProg(loadedPh / totalPh);
-                      res(t);
-                    }
-                  },
-                  undefined,
-                  () => {
-                    if (!done) {
-                      done = true;
-                      clearTimeout(tm);
-                      loadedPh++;
-                      updProg(loadedPh / totalPh);
-                      res(null);
-                    }
-                  },
-                );
-              }),
-          ),
+                }
+              );
+            })
+          )
         );
+
         for (let i = 0; i < cfg.n; i++) {
           const g = new THREE.Group(),
             ang = (i / cfg.n) * Math.PI * 2;
@@ -2469,51 +1329,33 @@
         }
       }
 
-      /* === AUDIO === */
+      /* === AUDIO MP3 LOKAL === */
       function mkAudio() {
-        let ctx = null,
-          gain = null,
-          playing = false;
+        // Muat file MP3 lokal Anda
+        const audio = new Audio('brenda-universe.mp3');
+        audio.loop = true; // Audio akan terus berputar sampai selesai (looping)
+        audio.volume = 0.6; // Atur volume (0.0 - 1.0)
+        let isPlaying = false;
+
         function start() {
-          if (ctx) return;
-          ctx = new (window.AudioContext || window.webkitAudioContext)();
-          gain = ctx.createGain();
-          gain.gain.value = 0;
-          gain.connect(ctx.destination);
-          [130.81, 196, 261.63, 329.63].forEach((f) => {
-            const o = ctx.createOscillator();
-            o.type = "sine";
-            o.frequency.value = f;
-            const g = ctx.createGain();
-            g.gain.value = 0.04;
-            o.connect(g);
-            g.connect(gain);
-            o.start();
-          });
-          const lfo = ctx.createOscillator();
-          lfo.type = "sine";
-          lfo.frequency.value = 0.15;
-          const lg = ctx.createGain();
-          lg.gain.value = 0.01;
-          lfo.connect(lg);
-          lg.connect(gain.gain);
-          lfo.start();
-          playing = true;
+          if (!isPlaying) {
+            audio.play().then(() => {
+              isPlaying = true;
+              document.getElementById("aw").classList.add("on");
+            }).catch(e => console.log("Autoplay diblokir browser:", e));
+          }
         }
-        function fadeIn() {
-          if (!ctx) start();
-          gain.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 1);
-          document.getElementById("aw").classList.add("on");
-        }
-        function fadeOut() {
-          if (!ctx) return;
-          gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
-          document.getElementById("aw").classList.remove("on");
-        }
+
         function toggle() {
-          playing ? fadeOut() : fadeIn();
-          playing = !playing;
+          if (isPlaying) {
+            audio.pause();
+            document.getElementById("aw").classList.remove("on");
+            isPlaying = false;
+          } else {
+            start();
+          }
         }
+
         return { toggle, start };
       }
 
@@ -2591,8 +1433,11 @@
             if (!this.classList.contains("tp")) this.classList.add("tp");
           }
         });
+        
+        // Saat tombol "Masuk ke Dunia Brenda" diklik, audio mulai diputar
         document.getElementById("bgo").addEventListener("click", () => {
           document.getElementById("inst").classList.add("out");
+          audSys.start(); // <-- Memulai audio MP3 otomatis
           setTimeout(() => {
             document.getElementById("inst").style.display = "none";
             document.getElementById("ui").classList.remove("out");
@@ -2600,6 +1445,7 @@
             startIntro();
           }, 700);
         });
+
         document
           .getElementById("aw")
           .addEventListener("click", () => audSys.toggle());
@@ -2673,7 +1519,10 @@
         let lastClk = 0;
         cv.addEventListener("click", () => {
           const now = Date.now();
-          if (now - lastClk < 350 && started) startCin();
+          if (now - lastClk < 350 && started) {
+            startCin();
+            audSys.start(); // Pastikan MP3 tetap berjalan saat double-click
+          }
           lastClk = now;
         });
         cv.addEventListener(
@@ -2818,5 +1667,3 @@
       setupEvents();
       animate();
     </script>
-  </body>
-</html>
