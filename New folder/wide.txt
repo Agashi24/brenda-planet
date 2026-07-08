@@ -1443,15 +1443,20 @@
           gap: 5px;
           padding: 5px 8px;
           bottom: 14px;
+          flex-wrap: wrap;
+          max-width: 95vw;
         }
         .cbt {
           padding: 8px 12px;
-          font-size: 0.62rem;
+          font-size: 0.6rem;
           gap: 5px;
           border-width: 1px;
         }
         .cbt i {
-          font-size: 0.72rem;
+          font-size: 0.7rem;
+        }
+        .cbt span {
+          display: inline-block;
         }
         #secret-indicator {
           right: 10px;
@@ -1793,13 +1798,19 @@
       <div id="cpl">
         <button class="cbt v-purple" id="bm_aud">
           <i class="fas fa-music"></i><span>Your Melody</span
-          ><span class="melody-dot"></span></button
-        ><button class="cbt v-cyan" id="bf">
-          <i class="fas fa-paper-plane"></i><span>Flying Photos</span></button
-        ><button class="cbt v-gold" id="bl">
-          <i class="fas fa-envelope"></i><span>Secret Letter</span></button
-        ><button class="cbt v-rose" id="bm">
+          ><span class="melody-dot"></span>
+        </button>
+        <button class="cbt v-cyan" id="bf">
+          <i class="fas fa-paper-plane"></i><span>Flying Photos</span>
+        </button>
+        <button class="cbt v-gold" id="bl">
+          <i class="fas fa-envelope"></i><span>Secret Letter</span>
+        </button>
+        <button class="cbt v-rose" id="bm">
           <i class="fas fa-meteor"></i><span>Meteor Burst</span>
+        </button>
+        <button class="cbt v-purple" id="brv">
+          <i class="fas fa-compress-arrows-alt"></i><span>Reset View</span>
         </button>
       </div>
     </div>
@@ -1834,10 +1845,31 @@
       const IS_MOBILE = innerWidth < 768 || "ontouchstart" in window;
       const STAR_COUNT = IS_MOBILE ? 2500 : 5000;
       const ZOOM_MIN = 4.5;
-      const ZOOM_MAX = IS_MOBILE ? 100 : 80; // Mobile can zoom out much further
-      const INIT_DIST = IS_MOBILE ? 28 : 16; // Start further back on mobile
-      const INIT_FOV = IS_MOBILE ? 60 : 52; // Wider FOV on mobile
-      const INTRO_START = IS_MOBILE ? 55 : 35; // Intro starts further on mobile
+      const ZOOM_MAX = IS_MOBILE ? 180 : 80; // izinkan zoom out sangat jauh di HP
+
+      // Fungsi FOV adaptif berdasarkan aspect ratio (kunci fix portrait mode)
+      function calcFov() {
+        const aspect = innerWidth / innerHeight;
+        if (IS_MOBILE && aspect < 1) {
+          // Portrait: dorong FOV vertikal jadi besar agar FOV horizontal memadai
+          // aspect 1.0 -> 68°, aspect 0.5 -> 83°, aspect 0.33 -> 90° (cap)
+          return Math.min(92, 68 + (1 - aspect) * 34);
+        }
+        return IS_MOBILE ? 62 : 52;
+      }
+
+      const INIT_DIST = IS_MOBILE
+        ? innerWidth / innerHeight < 1
+          ? 42
+          : 30 // portrait start lebih jauh
+        : 16;
+      const INIT_FOV = calcFov();
+      const INTRO_START = IS_MOBILE
+        ? innerWidth / innerHeight < 1
+          ? 70
+          : 55
+        : 35;
+
       const PROG_C = 2 * Math.PI * 30;
       const PK_L = 0xff6ec7,
         PK_M = 0xff3cac;
@@ -2394,7 +2426,12 @@
           0.1,
           500,
         );
-        cam.position.set(0, IS_MOBILE ? 4 : 2.5, INIT_DIST);
+        const _aspect0 = innerWidth / innerHeight;
+        cam.position.set(
+          0,
+          IS_MOBILE ? (_aspect0 < 1 ? 2.5 : 4) : 2.5,
+          INIT_DIST,
+        );
         tDist = INIT_DIST;
         ren = new THREE.WebGLRenderer({ antialias: !IS_MOBILE, alpha: true });
         ren.setSize(innerWidth, innerHeight);
@@ -2410,10 +2447,14 @@
         ctl.minDistance = ZOOM_MIN;
         ctl.enablePan = false;
         ctl.enableZoom = true;
-        ctl.zoomSpeed = IS_MOBILE ? 1.0 : 1.2;
+        ctl.zoomSpeed = IS_MOBILE ? 1.4 : 1.2; // lebih responsif di HP
+        ctl.zoomToCursor = false;
         ctl.autoRotate = true;
         ctl.autoRotateSpeed = 0.2;
         ctl.enabled = false;
+        // Pastikan touch-action benar agar pinch tidak ditelan browser
+        ren.domElement.style.touchAction = "none";
+
         scene.add(new THREE.AmbientLight(0x1a0030, 1.5));
         const p1 = new THREE.PointLight(0xff6ec7, 5, 65);
         p1.position.set(4, 5, 4);
@@ -2496,7 +2537,6 @@
         );
         scene.add(stars);
       }
-
       function mkPinkPlanet() {
         pkCore = new THREE.Mesh(
           mkHeart(1.8),
@@ -3133,6 +3173,34 @@ void main(){float n1=snoise(vPosition*2.5);float n2=snoise(vPosition*5.0+uTime*0
             toast("Meteor burst!");
           }
         });
+
+        // Tombol Reset View
+        document.getElementById("brv").addEventListener("click", () => {
+          if (!started) return;
+          if (cinC) {
+            cinC = null;
+            cinQ = [];
+            ctl.enabled = true;
+            document.getElementById("cinb").classList.remove("show");
+          }
+          const targetDist = INIT_DIST;
+          const startPos = cam.position.clone();
+          const dir = startPos.clone().normalize();
+          const targetPos = dir.multiplyScalar(targetDist);
+          targetPos.y = IS_MOBILE ? 2.5 : 2.5;
+          const startTime = performance.now();
+          const dur = 900;
+          function step() {
+            const t = Math.min((performance.now() - startTime) / dur, 1);
+            const e = eio(t);
+            cam.position.lerpVectors(startPos, targetPos, e);
+            ctl.target.set(0, 0, 0);
+            if (t < 1) requestAnimationFrame(step);
+          }
+          step();
+          toast("View reset");
+        });
+
         const cv = ren.domElement;
         cv.addEventListener("pointerdown", (e) => {
           ptrDn.x = e.clientX;
@@ -3190,6 +3258,7 @@ void main(){float n1=snoise(vPosition*2.5);float n2=snoise(vPosition*5.0+uTime*0
         });
         window.addEventListener("resize", () => {
           cam.aspect = innerWidth / innerHeight;
+          cam.fov = calcFov(); // recompute FOV saat rotate device
           cam.updateProjectionMatrix();
           ren.setSize(innerWidth, innerHeight);
         });
