@@ -1,2 +1,10 @@
+# Hanya ignore yang tidak perlu
 node_modules/
-.vercel/
+.DS_Store
+Thumbs.db
+*.log
+
+# JANGAN ignore file berikut:
+# !photos/
+# !*.jpg
+# !*.mp3
