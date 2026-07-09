@@ -204,21 +204,18 @@
       const IS_MOBILE = innerWidth < 768 || "ontouchstart" in window;
       const STAR_COUNT = IS_MOBILE ? 2500 : 5000;
       const ZOOM_MIN = 4.5;
-      const ZOOM_MAX = IS_MOBILE ? 180 : 80;   // izinkan zoom out sangat jauh di HP
+      const ZOOM_MAX = IS_MOBILE ? 180 : 80;   
 
-      // Fungsi FOV adaptif berdasarkan aspect ratio (kunci fix portrait mode)
       function calcFov() {
         const aspect = innerWidth / innerHeight;
         if (IS_MOBILE && aspect < 1) {
-          // Portrait: dorong FOV vertikal jadi besar agar FOV horizontal memadai
-          // aspect 1.0 -> 68°, aspect 0.5 -> 83°, aspect 0.33 -> 90° (cap)
           return Math.min(92, 68 + (1 - aspect) * 34);
         }
         return IS_MOBILE ? 62 : 52;
       }
 
       const INIT_DIST = IS_MOBILE
-        ? (innerWidth / innerHeight < 1 ? 42 : 30)   // portrait start lebih jauh
+        ? (innerWidth / innerHeight < 1 ? 42 : 30)
         : 16;
       const INIT_FOV = calcFov();
       const INTRO_START = IS_MOBILE
@@ -228,7 +225,6 @@
       const PROG_C = 2 * Math.PI * 30;
       const PK_L = 0xFF6EC7, PK_M = 0xFF3CAC;
       const LOCAL_PHOTOS = ["photos/1.jpg","photos/2.jpg","photos/3.jpg","photos/4.jpg","photos/5.jpg","photos/6.jpg","photos/7.jpg","photos/8.jpg","photos/9.jpg","photos/10.jpg"];
-      const PHOTO_TIMEOUT = 800;
 
       const RING_CFG = IS_MOBILE ? [
         {n:20,r:4.2,s:0.48,sp:0.32,bob:0.1,lines:3,stars:25},
@@ -366,7 +362,7 @@
 
       function init(){
         clk=new THREE.Clock();scene=new THREE.Scene();
-        scene.fog=new THREE.FogExp2(0x0A0018,.0018); // Slightly less fog for mobile visibility
+        scene.fog=new THREE.FogExp2(0x0A0018,.0018); 
         scene.background=null;
         cam=new THREE.PerspectiveCamera(INIT_FOV,innerWidth/innerHeight,.1,500);
         const _aspect0 = innerWidth / innerHeight;
@@ -383,12 +379,11 @@
         ctl.minDistance = ZOOM_MIN;
         ctl.enablePan = false;
         ctl.enableZoom = true;
-        ctl.zoomSpeed = IS_MOBILE ? 1.4 : 1.2;     // lebih responsif di HP
+        ctl.zoomSpeed = IS_MOBILE ? 1.4 : 1.2;     
         ctl.zoomToCursor = false;
         ctl.autoRotate = true;
         ctl.autoRotateSpeed = .2;
         ctl.enabled = false;
-        // Pastikan touch-action benar agar pinch tidak ditelan browser
         ren.domElement.style.touchAction = "none";
 
         scene.add(new THREE.AmbientLight(0x1A0030,1.5));
@@ -460,33 +455,12 @@ void main(){float n1=snoise(vPosition*2.5);float n2=snoise(vPosition*5.0+uTime*0
       const SPT_FS=`uniform vec3 uColor1;uniform vec3 uColor2;varying float vAlpha;varying float vT;void main(){float d=length(gl_PointCoord-vec2(.5));if(d>.5)discard;vec3 col=mix(uColor1,uColor2,vT);float glow=smoothstep(.5,.05,d);float core=smoothstep(.18,0.,d);vec3 hotCol=col*1.5+vec3(.1,.05,.05);vec3 fCol=mix(col,hotCol,glow*.5)+vec3(1.,.97,.9)*core*.9;float alpha=(glow*.6+core*.9)*vAlpha;gl_FragColor=vec4(fCol,alpha);}`;
 
       async function mkRing(cfg){
-        const grp=new THREE.Group();const loader=new THREE.TextureLoader();
-        const textures=await Promise.all(Array.from({length:cfg.n},(_,i)=>new Promise(res=>{
-          const photoSrc=LOCAL_PHOTOS[i%LOCAL_PHOTOS.length];let done=false;
-          const tm=setTimeout(()=>{if(!done){done=true;loadedPh++;updProg(loadedPh/totalPh);res(null);}},PHOTO_TIMEOUT);
-          loader.load(photoSrc,t=>{
-            if(!done){
-              done=true;
-              clearTimeout(tm);
-              t.colorSpace = THREE.SRGBColorSpace;
-              if (ren) t.anisotropy = ren.capabilities.getMaxAnisotropy(); // Ketajaman maksimal
-              t.minFilter = THREE.LinearMipmapLinearFilter;
-              t.generateMipmaps = true;
-              loadedPh++;
-              updProg(loadedPh/totalPh);
-              res(t);
-            }
-          }, undefined, () => {
-            if(!done){
-              done=true;
-              clearTimeout(tm);
-              loadedPh++;
-              updProg(loadedPh/totalPh);
-              res(null);
-            }
-          });
-        })));
+        const grp=new THREE.Group();
+        const loader=new THREE.TextureLoader();
         const outerSz=cfg.s+0.18,innerSz=cfg.s+0.04,glowSz=outerSz*1.6;
+        const photoMeshes = [];
+        
+        // Buat bingkai dan mesh foto terlebih dahulu
         for(let i=0;i<cfg.n;i++){
           const g=new THREE.Group();const ang=(i/cfg.n)*Math.PI*2;
           const neonColor=i%2===0?new THREE.Color(0xFF66CC):new THREE.Color(0xFFC107);
@@ -496,17 +470,45 @@ void main(){float n1=snoise(vPosition*2.5);float n2=snoise(vPosition*5.0+uTime*0
           const borderMat=new THREE.ShaderMaterial({uniforms:{uNeonColor:{value:neonColor},uTime:{value:0},uOuterSize:{value:outerSz},uInnerSize:{value:innerSz}},vertexShader:FRAME_VS,fragmentShader:FRAME_FS,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
           borderMat.polygonOffset=true;borderMat.polygonOffsetFactor=1;borderMat.polygonOffsetUnits=1;
           const borderPlane=new THREE.Mesh(new THREE.PlaneGeometry(outerSz,outerSz),borderMat);borderPlane.position.z=-0.03;borderPlane.renderOrder=-1;g.add(borderPlane);ringBorderMats.push(borderMat);
-
-          // PERUBahan MATERIAL: MeshBasicMaterial agar foto selalu cerah dan terlihat jelas tanpa bergantung pada cahaya scene
-          const pm = textures[i] 
-            ? new THREE.MeshBasicMaterial({ map: textures[i], side: THREE.DoubleSide }) 
-            : new THREE.MeshBasicMaterial({ color: 0x12001E, side: THREE.DoubleSide });
-            
+          
+          // Material sementara (fallback) sebelum foto termuat
+          const pm = new THREE.MeshBasicMaterial({ color: 0x12001E, side: THREE.DoubleSide });
           const ph=new THREE.Mesh(new THREE.PlaneGeometry(cfg.s,cfg.s),pm);ph.position.z=0.01;ph.renderOrder=0;g.add(ph);
+          photoMeshes.push(ph);
+          
           g.position.set(Math.cos(ang)*cfg.r,0,Math.sin(ang)*cfg.r);g.lookAt(Math.cos(ang)*cfg.r*2,0,Math.sin(ang)*cfg.r*2);
           g.userData={angle:ang,idx:i,ft:null,radius:cfg.r,bob:cfg.bob,exploding:false,expPos:null,expVel:null,springK:2.5+Math.random()*3,dampFactor:.9+Math.random()*.05,group:grp};
           grp.add(g);allPhotos.push(g);
         }
+        
+        // Muat foto secara asinkron, tidak memblokir pembuatan ring
+        const texturePromises = [];
+        for(let i=0;i<cfg.n;i++){
+          const photoSrc=LOCAL_PHOTOS[i%LOCAL_PHOTOS.length];
+          const p = new Promise(res => {
+            loader.load(photoSrc, t => {
+              t.colorSpace = THREE.SRGBColorSpace;
+              if (ren) t.anisotropy = ren.capabilities.getMaxAnisotropy();
+              t.minFilter = THREE.LinearMipmapLinearFilter;
+              t.generateMipmaps = true;
+              // Terapkan tekstur ke mesh yang sudah dibuat
+              if (photoMeshes[i]) {
+                photoMeshes[i].material.map = t;
+                photoMeshes[i].material.color.setHex(0xffffff);
+                photoMeshes[i].material.needsUpdate = true;
+              }
+              loadedPh++;
+              updProg(loadedPh/totalPh);
+              res();
+            }, undefined, () => {
+              loadedPh++;
+              updProg(loadedPh/totalPh);
+              res();
+            });
+          });
+          texturePromises.push(p);
+        }
+        
         const numLines=cfg.lines||3;const lineColors=[0xFF66CC,0xFF6EC7,0xFFC107,0xFFFFFF];const segs=100;
         for(let l=0;l<numLines;l++){
           const offset=(l-(numLines-1)/2)*0.08;const r=cfg.r+offset;
@@ -526,7 +528,11 @@ void main(){float n1=snoise(vPosition*2.5);float n2=snoise(vPosition*5.0+uTime*0
         const sGeo=new THREE.BufferGeometry();sGeo.setAttribute("position",new THREE.Float32BufferAttribute(sPos,3));sGeo.setAttribute("aPhase",new THREE.Float32BufferAttribute(sPh,1));sGeo.setAttribute("aSize",new THREE.Float32BufferAttribute(sSz,1));sGeo.setAttribute("aStarT",new THREE.Float32BufferAttribute(sT,1));
         const sMat=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uColor1:{value:new THREE.Color(0xFF66CC)},uColor2:{value:new THREE.Color(0xFFC107)}},vertexShader:SPT_VS,fragmentShader:SPT_FS,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false});
         grp.add(new THREE.Points(sGeo,sMat));ringStarMats.push(sMat);
-        grp.userData.speed=cfg.sp;scene.add(grp);return grp;
+        
+        grp.userData.speed=cfg.sp;scene.add(grp);
+        // Tunggu sampai semua foto selesai dimuat (atau gagal) sebelum return
+        await Promise.all(texturePromises);
+        return grp;
       }
       async function mkAllRings(){for(const c of RING_CFG)ringGroups.push(await mkRing(c));}
 
@@ -555,7 +561,6 @@ void main(){float n1=snoise(vPosition*2.5);float n2=snoise(vPosition*5.0+uTime*0
         update(dt){this.tmr+=dt;if(this.tmr>this.intv){this.tmr=0;this.intv=5+Math.random()*5;this.spawn(1);}for(let i=this.list.length-1;i>=0;i--){const m=this.list[i];m.life+=dt;const t=m.life/m.ml;m.m.uniforms.uO.value=Math.max(0,1-t*t);const pa=m.g.attributes.position.array;const mv=m.spd*dt;for(let j=0;j<pa.length;j+=3){pa[j]+=m.dir.x*mv;pa[j+1]+=m.dir.y*mv;pa[j+2]+=m.dir.z*mv;}m.g.attributes.position.needsUpdate=true;if(m.life>=m.ml){this.sc.remove(m.line);m.g.dispose();m.m.dispose();this.list.splice(i,1);}}}
       }
 
-      // AUDIO DIPERBAIKI: nama file tanpa URL encoding agar sesuai struktur folder
       function mkAudio(){const audio=new Audio("brenda-universe.mp3");audio.loop=true;audio.volume=.6;let isPlaying=false;const btn=document.getElementById("bm_aud");function updateBtn(){if(isPlaying&&!audio.paused)btn.classList.add("on");else btn.classList.remove("on");}function start(){if(!isPlaying){audio.play().then(()=>{isPlaying=true;updateBtn();}).catch(()=>{});}else{if(audio.paused)audio.play();updateBtn();}}function toggle(){if(isPlaying&&!audio.paused){audio.pause();isPlaying=false;updateBtn();}else{start();}}return{toggle,start,updateBtn};}
 
       function toggleFly(){flying=!flying;const btn=document.getElementById("bf");if(flying){btn.classList.add("on");for(const c of allPhotos)c.userData.ft=null;}else btn.classList.remove("on");}
@@ -580,7 +585,6 @@ void main(){float n1=snoise(vPosition*2.5);float n2=snoise(vPosition*5.0+uTime*0
         document.getElementById("lcl").addEventListener("click",()=>{document.getElementById("lov").classList.add("out");twRunning=false;});
         document.getElementById("bm").addEventListener("click",()=>{if(started){metSys.spawn(8+Math.floor(Math.random()*8));toast("Meteor burst!");}});
         
-        // Tombol Reset View
         document.getElementById("brv").addEventListener("click", () => {
           if (!started) return;
           if (cinC) { cinC = null; cinQ = []; ctl.enabled = true; document.getElementById("cinb").classList.remove("show"); }
@@ -610,7 +614,7 @@ void main(){float n1=snoise(vPosition*2.5);float n2=snoise(vPosition*5.0+uTime*0
         window.addEventListener("keydown",e=>{if(!started)return;if(e.key==="ArrowUp")toggleFly();if(e.key===" "){e.preventDefault();startCin();}});
         window.addEventListener("resize",()=>{
           cam.aspect = innerWidth / innerHeight;
-          cam.fov = calcFov();           // recompute FOV saat rotate device
+          cam.fov = calcFov();           
           cam.updateProjectionMatrix();
           ren.setSize(innerWidth, innerHeight);
         });
